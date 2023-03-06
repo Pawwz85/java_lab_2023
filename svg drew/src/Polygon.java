@@ -27,6 +27,9 @@ public class Polygon {
 
         return String.format(Locale.ENGLISH,"<polygon points=\"%s\" %s />", pointsString,style.toSVG());
     }
+    public Polygon square(Segment diagonal)
+    {
 
+    }
 
 }

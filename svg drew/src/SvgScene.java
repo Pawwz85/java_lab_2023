@@ -12,14 +12,24 @@ public class SvgScene {
     }
     public void saveHtml(String path)
     {
-        try
-        {
-            FileWriter fw = new FileWriter(path);
+
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(path);
+
+            fw.write("<html>\n<body>\n<svg width=\"1000\" height=\"1000\">");
+            for(var pol : shapes)
+            {
+                fw.write(pol.toSvg() + "\n");
+            }
+            fw.write("</svg>\n</body>\n</html>");
             fw.close();
-        }
-        catch (Exception e)
+        } catch (IOException e)
         {
-            e.getStackTrace();
+            throw new RuntimeException(e);
         }
+
+
+
     }
 }
