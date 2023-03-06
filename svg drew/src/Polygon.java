@@ -1,10 +1,10 @@
 import java.util.Locale;
 
-public class Polygon {
+public class Polygon  extends Shape{
     private Point[] arr;
-    private Style style;
 
     public Polygon(int count,Style style) {
+        super(style);
         arr = new Point[count];
         this.style = style;
     }
@@ -29,7 +29,7 @@ public class Polygon {
     }
     public Polygon square(Segment diagonal)
     {
-
+    diagonal.perpendicular()
     }
 
 }
