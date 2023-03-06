@@ -50,4 +50,4 @@ public class Segment
 
         return new Segment[]{new Segment(point, new Point(x1,y1)), new Segment(point, new Point(x2,y2))};
     }
-}
+}//
