@@ -8,7 +8,7 @@ public class Main {
             System.out.println(perp2[i].toSVG());
         System.out.println(segment.distance());
 
-        Polygon poly = new Polygon(4);
+        Polygon poly = new Polygon(4, new Style());
         poly.setPoints(new Point[]{new Point(120,30), new Point(170,180), new Point(240,320), new Point(110,30)});
         System.out.println(poly.toSvg());
 

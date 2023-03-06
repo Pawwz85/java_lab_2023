@@ -2,8 +2,10 @@ import java.util.Locale;
 
 public class Polygon {
     Point[] arr;
+    Style style;
 
-    public Polygon(int count) {
+    public Polygon(int count, Style style) {
+        this.style = style;
         arr = new Point[count];
     }
 
