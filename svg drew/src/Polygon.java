@@ -1,12 +1,15 @@
 import java.util.Locale;
 
 public class Polygon {
-    Point[] arr;
-    Style style;
+    private Point[] arr;
+    private Style style;
 
-    public Polygon(int count, Style style) {
-        this.style = style;
+    public Polygon(int count,Style style) {
         arr = new Point[count];
+        this.style = style;
+    }
+    public Polygon(int count) {
+        this(count,new Style("transparent","black",1));
     }
 
     public void setPoint(int index, Point point) {
@@ -22,8 +25,8 @@ public class Polygon {
         for(Point point : arr)
             pointsString += point.x + "," + point.y + " ";
 
-        return String.format(Locale.ENGLISH,"<polygon points=\"%s\" />", pointsString);
+        return String.format(Locale.ENGLISH,"<polygon points=\"%s\" %s />", pointsString,style.toSVG());
     }
 
 
-}//
+}
