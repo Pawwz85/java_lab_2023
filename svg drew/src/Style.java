@@ -1,28 +1,19 @@
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Locale;
 
-public class SvgScene {
-    private List<Shape> shapes = new ArrayList<>();
-    public void add(Shape polygon){
-        shapes.add(polygon);
+public class Style {
+
+    public final String fillColor, strokeColor;
+    public final double strokeWidth;
+    public Style(String fillColor, String strokeColor, double strokeWidth) {
+        this.fillColor = fillColor;
+        this.strokeColor = strokeColor;
+        this.strokeWidth = strokeWidth;
     }
-    public void saveHtml(String path){
-        try {
-            FileWriter fw = new FileWriter(path);
-            fw.write("<html> <body> <svg width=\"1000\" height=\"1000\">\n");
-            for(var polygon : shapes){
-                fw.write(polygon.toSvg()+"\n");
-            }
-            fw.write("</svg>\n" +
-                    "\n" +
-                    "</body>\n" +
-                    "</html>");
-            fw.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    //style="fill:lime;stroke:purple;stroke-width:1" />
 
+//    return String.format(Locale.ENGLISH,"<polygon points=\"%s\" />", pointsString);
+
+    public String toSVG() {
+        return String.format(Locale.ENGLISH,"style=\"fill:%s;stroke:%s;stroke-width:%f\"", fillColor,strokeColor,strokeWidth);
     }
 }
