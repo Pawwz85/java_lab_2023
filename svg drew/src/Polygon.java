@@ -1,35 +1,17 @@
 import java.util.Locale;
 
-public class Polygon  extends Shape{
-    private Point[] arr;
+public class Polygon implements Shape {
+    Vec2 points[];
 
-    public Polygon(int count,Style style) {
-        super(style);
-        arr = new Point[count];
-        this.style = style;
-    }
-    public Polygon(int count) {
-        this(count,new Style("transparent","black",1));
-    }
-
-    public void setPoint(int index, Point point) {
-        arr[index] = point;
-    }
-
-    public void setPoints(Point[] points){
-        arr = points;
+    public Polygon(Vec2[] points) {
+        this.points = points;
     }
 
     public String toSvg() {
         String pointsString = "";
-        for(Point point : arr)
+        for(Vec2 point : points)
             pointsString += point.x + "," + point.y + " ";
 
-        return String.format(Locale.ENGLISH,"<polygon points=\"%s\" %s />", pointsString,style.toSVG());
+        return String.format(Locale.ENGLISH,"<polygon points=\"%s\" />", pointsString);
     }
-    public Polygon square(Segment diagonal)
-    {
-    diagonal.perpendicular()
-    }
-
 }

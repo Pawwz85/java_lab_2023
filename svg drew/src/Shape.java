@@ -1,8 +1,4 @@
-abstract public class Shape {
-    protected  Style style;
-    public Shape(Style style) {
-        this.style = style;
-    }
+public interface Shape {
+    String toSvg();
 
-    public abstract void toSVG();
 }
