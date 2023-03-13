@@ -1,22 +1,18 @@
-//import java.util.Locale;
-//
-//public class Ellipse extends Shape{
-//    Point center;
-//    double rx,ry;
-//
-//    public Ellipse(Point center, double rx, double ry,Style style) {
-//        super(style);
-//        this.rx=rx;
-//        this.ry=ry;
-//        this.center=center;
-//
-//    }
-//    public Point rightBottom() {
-//        return new Point(center.x + rx + style.strokeWidth,center.y + ry+ style.strokeWidth);
-//    }
-//
-//    @Override
-//    public String toSvg() {
-//        return String.format(Locale.ENGLISH,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"%f\" ry=\"%f\"/>", center.x,center.y,rx,ry);
-//    }
-//}
+import java.util.Locale;
+
+public class Ellipse implements Shape{
+    Vec2 center;
+    double rx,ry;
+
+    public Ellipse(Vec2 center, double rx, double ry) {
+        this.rx=rx;
+        this.ry=ry;
+        this.center=center;
+
+    }
+    @Override
+    public String toSvg(String parameters) {
+        return String.format(Locale.ENGLISH,"<ellipse cx=\"%f\" cy=\"%f\" rx=\"%f\" ry=\"%f\" %s />",
+                center.x,center.y,rx,ry,parameters);
+    }
+}

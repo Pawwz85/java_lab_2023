@@ -13,7 +13,7 @@ public class SvgScene {
             FileWriter fw = new FileWriter(path);
             fw.write("<html> <body> <svg width=\"1000\" height=\"1000\">\n");
             for(var polygon : shapes){
-                fw.write(polygon.toSvg()+"\n");
+                fw.write(polygon.toSvg("")+"\n");
             }
             fw.write("</svg>\n" +
                     "\n" +

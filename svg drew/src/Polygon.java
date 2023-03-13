@@ -7,11 +7,11 @@ public class Polygon implements Shape {
         this.points = points;
     }
 
-    public String toSvg() {
+    public String toSvg(String parameters) {
         String pointsString = "";
         for(Vec2 point : points)
             pointsString += point.x + "," + point.y + " ";
 
-        return String.format(Locale.ENGLISH,"<polygon points=\"%s\" />", pointsString);
+        return String.format(Locale.ENGLISH,"<polygon points=\"%s\" %s />", pointsString, parameters);
     }
 }
