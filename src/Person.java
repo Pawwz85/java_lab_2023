@@ -1,17 +1,19 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.Vector;
 
 public class Person implements Serializable {
     private String name;
     private LocalDate birth, death;
     private Person parents[] = new Person[2];
-
+    private static Vector<String> names = new Vector<>();
     public Person(String name, LocalDate birth) {
         this(name, birth, null);
     }
@@ -61,7 +63,7 @@ public class Person implements Serializable {
             }
         }
     }
-     public static Person loadPerson (String filePath) throws FileNotFoundException
+     public static Person loadPerson (String filePath) throws FileNotFoundException, AmbigiousPersonException
     {
         File file = new File(filePath);
         Scanner scan = new Scanner(file);
@@ -74,6 +76,14 @@ public class Person implements Serializable {
         else deathTime = null;
 
 
+        for(var i: names)
+        {
+            if(i.compareTo(name) == 0)
+            {
+                throw new AmbigiousPersonException(name);
+            }
+        }
+        names.add(name);
         return new Person(name, birthTime, deathTime);
     }
 }

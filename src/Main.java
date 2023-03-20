@@ -77,7 +77,7 @@ public class Main {
             Person glaz = Person.loadPerson("//home//student//IdeaProjects//Lecture 4//test//test_same_osoby//Joanna Nowak.txt");
             System.out.println(glaz);
         }
-       catch(FileNotFoundException e)
+       catch(FileNotFoundException | AmbigiousPersonException e)
         {
             throw new RuntimeException();
         }
