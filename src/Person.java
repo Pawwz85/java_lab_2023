@@ -13,7 +13,7 @@ public class Person implements Serializable {
     private String name;
     private LocalDate birth, death;
     private Person parents[] = new Person[2];
-    private static Vector<String> names = new Vector<>();
+    private static Vector<TemporaryPerson> names = new Vector<>();
     public Person(String name, LocalDate birth) {
         this(name, birth, null);
     }
@@ -78,12 +78,13 @@ public class Person implements Serializable {
 
         for(var i: names)
         {
-            if(i.compareTo(name) == 0)
+            if(i.person.name.compareTo(name) == 0)
             {
-                throw new AmbigiousPersonException(name);
+                throw new AmbigiousPersonException(name, filePath, "We found a clone.");
             }
         }
-        names.add(name);
-        return new Person(name, birthTime, deathTime);
+        Person result = new Person(name, birthTime, deathTime);
+        names.add(new TemporaryPerson(result, filePath));
+        return result;
     }
 }

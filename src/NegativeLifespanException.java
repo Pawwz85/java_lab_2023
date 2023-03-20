@@ -10,4 +10,5 @@ public class NegativeLifespanException extends DateTimeException {
         super(message);
         lifespan = Period.between(birth, death);
     }
+
 }

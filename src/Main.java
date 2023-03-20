@@ -74,11 +74,15 @@ public class Main {
     public static void main(String[] args) {
         try
         {
+            Person ala1 = Person.loadPerson("//home//student//IdeaProjects//Lecture 4//test//test_same_osoby//Alicja Stefanek.txt");
             Person glaz = Person.loadPerson("//home//student//IdeaProjects//Lecture 4//test//test_same_osoby//Joanna Nowak.txt");
+            Person ala2 = Person.loadPerson("//home//student//IdeaProjects//Lecture 4//test//test_same_osoby//Alicja Stefanek.txt");
             System.out.println(glaz);
         }
        catch(FileNotFoundException | AmbigiousPersonException e)
         {
+            e.printStackTrace();
+            System.out.println(e);
             throw new RuntimeException();
         }
 
