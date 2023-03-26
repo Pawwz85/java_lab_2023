@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.time.LocalDate;
@@ -11,14 +12,18 @@ import java.util.Vector;
 
 public class Person implements Serializable {
     private String name;
+
+
     private LocalDate birth, death;
     private Person parents[] = new Person[2];
     private static Vector<TemporaryPerson> names = new Vector<>();
+    public boolean is_real;
     public Person(String name, LocalDate birth) {
         this(name, birth, null);
     }
 
     public Person(String name, LocalDate birth, LocalDate death) {
+        this.is_real = true;
         this.name = name;
         this.birth = birth;
         this.death = death;
@@ -51,6 +56,20 @@ public class Person implements Serializable {
                 '}';
     }
 
+    public String getName() {
+        return name;
+    }
+    public LocalDate getBirth() {
+        return birth;
+    }
+
+    public LocalDate getDeath() {
+        return death;
+    }
+
+    public Person[] getParents() {
+        return parents;
+    }
     void checkForIncest() throws IncestException {
         if(parents[0] == null || parents[1] == null)
             return;
@@ -63,6 +82,30 @@ public class Person implements Serializable {
             }
         }
     }
+    void checkForStrangeParent() throws ParentingAgeException{
+        if(parents[0] != null)
+        {
+            if(!birth.isAfter(parents[0].getBirth()))
+                throw new ParentingAgeException("");
+            if(parents[0].death != null && birth.isAfter(parents[0].getDeath()))
+                throw new ParentingAgeException("");
+            if( parents[0].getBirth().plusYears(15).isAfter(birth))
+                throw new ParentingAgeException("");
+            if(!parents[0].getBirth().plusYears(50).isAfter(birth))
+                throw new ParentingAgeException("");
+        }
+        if(parents[1] != null)
+        {
+            if(!birth.isAfter(parents[1].getBirth()))
+                throw new ParentingAgeException("");
+            if(parents[1].death != null && birth.isAfter(parents[1].getDeath()))
+                throw new ParentingAgeException("");
+            if( parents[1].getBirth().plusYears(15).isAfter(birth))
+                throw new ParentingAgeException("");
+            if(!parents[1].getBirth().plusYears(50).isAfter(birth))
+                throw new ParentingAgeException("");
+        }
+    }
      public static Person loadPerson (String filePath) throws FileNotFoundException, AmbigiousPersonException
     {
         File file = new File(filePath);
@@ -71,9 +114,23 @@ public class Person implements Serializable {
         LocalDate birthTime = LocalDate.parse(scan.nextLine(), DateTimeFormatter.ofPattern("dd.MM.uuuu"));
 
         LocalDate deathTime;
-        if(scan.hasNext())
-        deathTime = LocalDate.parse(scan.nextLine(), DateTimeFormatter.ofPattern("dd.MM.uuuu"));
-        else deathTime = null;
+        String nextLine;
+        deathTime = null;
+        Person parent1 = null, parent2 = null;
+        while(scan.hasNext())
+        {
+            nextLine = scan.nextLine();
+            if (nextLine.compareTo("Rodzice:") == 0)
+            {
+                parent1 = new ReferencedPerson(scan.nextLine());
+                if(scan.hasNext())
+                    parent2 = new ReferencedPerson(scan.nextLine());
+            }
+            else
+            deathTime = LocalDate.parse(nextLine, DateTimeFormatter.ofPattern("dd.MM.uuuu"));
+        }
+
+
 
 
         for(var i: names)
@@ -83,8 +140,65 @@ public class Person implements Serializable {
                 throw new AmbigiousPersonException(name, filePath, "We found a clone.");
             }
         }
-        Person result = new Person(name, birthTime, deathTime);
-        names.add(new TemporaryPerson(result, filePath));
+        try
+        {
+            Person result = new Person(name, birthTime, deathTime, parent1, parent2);
+            names.add(new TemporaryPerson(result, filePath));
+            return result;
+        }
+       catch (IncestException e)
+        {
+            throw new RuntimeException();
+        }
+
+
+    }
+    public static Person[] loadArray(String[] Paths) throws UndefinedPersonReferenceException
+    {
+        Vector<Person> resultV  = new Vector<Person>();
+        for (var path: Paths )
+        {
+            try
+            {
+                resultV.add(loadPerson(path));
+            }
+            catch (java.io.FileNotFoundException | AmbigiousPersonException e) {};
+        }
+        Person result[] = resultV.toArray(new Person[resultV.size()]);
+        for (int i = 0; i < resultV.size(); i++) {
+            if(result[i].parents[0] != null)
+            for (int j = 0; j < resultV.size(); j++) {
+            if(result[j].getName().compareTo(result[i].parents[0].getName()) == 0)
+                result[i].parents[0] = result[j];
+            }
+
+            if(result[i].parents[1] != null)
+                for (int j = 0; j < resultV.size(); j++) {
+                    if(result[j].getName().compareTo(result[i].parents[1].getName())  ==0)
+                        result[i].parents[1] = result[j];
+                }
+        }
+
+        for (var person:result)
+        {
+            if(person.parents[0] != null && person.parents[0].is_real == false)
+            throw new UndefinedPersonReferenceException("",person.parents[0]);
+            if(person.parents[1] != null && person.parents[1].is_real == false)
+            throw new UndefinedPersonReferenceException("",person.parents[1]);
+            try{person.checkForStrangeParent();} catch (ParentingAgeException e)
+            {
+                System.out.println(String.format("%s ma anomalną datę urodzenia %s. Czy potwierdzasz dodanie takiej osoby [Y]?",
+                        person.name, person.birth.toString()));
+                try {
+                    if(System.in.read() != 'Y')
+                        person = null;
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+
+
+        }
         return result;
     }
 }
