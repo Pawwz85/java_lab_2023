@@ -5,10 +5,7 @@ import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 public class Person implements Serializable {
     private String name;
@@ -16,6 +13,7 @@ public class Person implements Serializable {
 
     private LocalDate birth, death;
     private Person parents[] = new Person[2];
+    private List<Person> children;
     private static Vector<TemporaryPerson> names = new Vector<>();
     public boolean is_real;
     public Person(String name, LocalDate birth) {
@@ -23,6 +21,7 @@ public class Person implements Serializable {
     }
 
     public Person(String name, LocalDate birth, LocalDate death) {
+        this.children = new ArrayList<>();
         this.is_real = true;
         this.name = name;
         this.birth = birth;
@@ -41,7 +40,11 @@ public class Person implements Serializable {
 
         checkForIncest();
     }
-
+    public Person(String name, LocalDate birth, LocalDate death, Person parent1, Person parent2, List<Person> childs) throws IncestException {
+        this(name, birth, death,parent1, parent2);
+        for (var child : childs)
+            this.children.add(child);
+    }
     public Person(String name, LocalDate birth, Person parent1, Person parent2) throws IncestException {
         this(name, birth, null, parent1, parent2);
     }
@@ -52,7 +55,6 @@ public class Person implements Serializable {
                 "name='" + name + '\'' +
                 ", birth=" + birth +
                 ", death=" + death +
-                ", parents=" + Arrays.toString(parents) +
                 '}';
     }
 
@@ -83,6 +85,7 @@ public class Person implements Serializable {
         }
     }
     void checkForStrangeParent() throws ParentingAgeException{
+        System.out.println(toString());
         if(parents[0] != null)
         {
             if(!birth.isAfter(parents[0].getBirth()))
@@ -106,6 +109,27 @@ public class Person implements Serializable {
                 throw new ParentingAgeException("");
         }
     }
+    public void checkForOneWayReference () throws ParentNotReferencingChildException, ChildNotReferencingParentException
+    {
+        for(var child:children)
+            if(child.parents[0] != this && child.parents[1] != this)
+                throw new ChildNotReferencingParentException(this, child,"Spoilded kid.");
+        boolean flag = true;
+        for(var parent:parents)
+        {
+            if(parent != null)
+            {
+                flag = true;
+                for(var sibling:parent.children)
+                    flag = flag && (sibling != this);
+                if (flag)
+                    throw new ParentNotReferencingChildException(parent, this, "Bad Parent");
+            }
+
+        }
+
+
+    }
      public static Person loadPerson (String filePath) throws FileNotFoundException, AmbigiousPersonException
     {
         File file = new File(filePath);
@@ -114,20 +138,38 @@ public class Person implements Serializable {
         LocalDate birthTime = LocalDate.parse(scan.nextLine(), DateTimeFormatter.ofPattern("dd.MM.uuuu"));
 
         LocalDate deathTime;
-        String nextLine;
+        String nextLine ="";
         deathTime = null;
         Person parent1 = null, parent2 = null;
-        while(scan.hasNext())
+        List <Person> childs  = new ArrayList<>();
+        if(scan.hasNext())
         {
             nextLine = scan.nextLine();
+            if(nextLine.compareTo("Rodzice:")!=0 && nextLine.compareTo("Dzieci:")!=0 )
+               deathTime = LocalDate.parse(nextLine, DateTimeFormatter.ofPattern("dd.MM.uuuu"));
+
+        }
+        while(scan.hasNext())
+        {
+            if( nextLine.compareTo("Rodzice:")!=0 && nextLine.compareTo("Dzieci:")!=0 )
+                nextLine = scan.nextLine();
             if (nextLine.compareTo("Rodzice:") == 0)
             {
                 parent1 = new ReferencedPerson(scan.nextLine());
                 if(scan.hasNext())
-                    parent2 = new ReferencedPerson(scan.nextLine());
+                    nextLine = scan.nextLine();
+                if(nextLine.compareTo("Rodzice:")!=0 && nextLine.compareTo("Dzieci:")!=0)
+                    parent2 = new ReferencedPerson(nextLine);
             }
-            else
-            deathTime = LocalDate.parse(nextLine, DateTimeFormatter.ofPattern("dd.MM.uuuu"));
+            if (nextLine.compareTo("Dzieci:") == 0)
+            {
+                while (scan.hasNext())
+                {
+                    nextLine = scan.nextLine();
+                    childs.add(new ReferencedPerson(nextLine));
+                }
+            }
+
         }
 
 
@@ -142,7 +184,7 @@ public class Person implements Serializable {
         }
         try
         {
-            Person result = new Person(name, birthTime, deathTime, parent1, parent2);
+            Person result = new Person(name, birthTime, deathTime, parent1, parent2, childs);
             names.add(new TemporaryPerson(result, filePath));
             return result;
         }
@@ -162,7 +204,7 @@ public class Person implements Serializable {
             {
                 resultV.add(loadPerson(path));
             }
-            catch (java.io.FileNotFoundException | AmbigiousPersonException e) {};
+            catch (FileNotFoundException | AmbigiousPersonException e) {};
         }
         Person result[] = resultV.toArray(new Person[resultV.size()]);
         for (int i = 0; i < resultV.size(); i++) {
@@ -177,6 +219,14 @@ public class Person implements Serializable {
                     if(result[j].getName().compareTo(result[i].parents[1].getName())  ==0)
                         result[i].parents[1] = result[j];
                 }
+            List<Person> chd = new ArrayList<>();
+            for (var child : result[i].children)
+                for (int j = 0; j < resultV.size(); j++) {
+                    if(result[j].getName().compareTo(child.getName())  ==0)
+                    chd.add(result[j]);
+
+                }
+            result[i].children = chd;
         }
 
         for (var person:result)
@@ -185,9 +235,17 @@ public class Person implements Serializable {
             throw new UndefinedPersonReferenceException("",person.parents[0]);
             if(person.parents[1] != null && person.parents[1].is_real == false)
             throw new UndefinedPersonReferenceException("",person.parents[1]);
+            for(var child: person.children)
+                if(!child.is_real)
+                    throw new UndefinedPersonReferenceException("",child);
+            try{person.checkForOneWayReference();} catch (ParentChildInconsistencyException e)
+            {
+                System.out.println(e.toString());
+                throw new RuntimeException();
+            }
             try{person.checkForStrangeParent();} catch (ParentingAgeException e)
             {
-                System.out.println(String.format("%s ma anomalną datę urodzenia %s. Czy potwierdzasz dodanie takiej osoby [Y]?",
+                System.out.println(String.format("%s has unusual birthdate %s. Do you confirm adding this person? [Y]?",
                         person.name, person.birth.toString()));
                 try {
                     if(System.in.read() != 'Y')

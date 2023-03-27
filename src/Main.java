@@ -77,7 +77,7 @@ public class Main {
            String paths[] = new String[11];
 
             for (int i = 1; i <= 11 ; i++)
-            paths[i-1] = String.format(("test/test_rodzice/p%s.txt"), i);
+            paths[i-1] = String.format(("test/test_dzieci_rodzice/p%s.txt"), i);
 
             Person[] result = Person.loadArray(paths);
 
