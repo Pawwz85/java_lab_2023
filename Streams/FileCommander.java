@@ -24,6 +24,7 @@ public class FileCommander {
     public List<String> ls()
     {
         Comparator<Path> comparator = (path2, path1)-> Boolean.compare(Files.isDirectory(path1), Files.isDirectory(path2));
+        comparator =  comparator.thenComparing(Path::getFileName);
         try  {
         return Files.list(path)
                 .sorted(comparator)
@@ -42,6 +43,18 @@ public class FileCommander {
 
             throw new RuntimeException();
         }
+    }
+    public List<String> find(String substring) {
+        try{
+            return Files.walk(this.path)
+                    .map(o->o.getFileName())
+                    .filter(o->o.toString().contains(substring))
+                    .map (o ->o.toString())
+                    .collect(Collectors.toList());
+    }catch (IOException e)
+        {
 
+            throw new RuntimeException();
+        }
     }
 }

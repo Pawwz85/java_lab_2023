@@ -9,5 +9,6 @@ public class Main
         //fileCommander.cd(Path.of("/home/Student/Pulpt"));
         System.out.println(fileCommander.pwd());
         System.out.println(fileCommander.ls());
+        System.out.println(fileCommander.find("java"));
     }
 }
