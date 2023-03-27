@@ -6,10 +6,8 @@ public class Main
     {
         FileCommander fileCommander =new FileCommander();
         System.out.println(fileCommander.pwd());
-        fileCommander.cd(Path.of("/home/Student/Pulpt"));
+        //fileCommander.cd(Path.of("/home/Student/Pulpt"));
         System.out.println(fileCommander.pwd());
-        fileCommander.cd(Path.of("..").normalize());
-        System.out.println(fileCommander.pwd());
-        fileCommander.cd(Path.of("..").normalize());
+        System.out.println(fileCommander.ls());
     }
 }

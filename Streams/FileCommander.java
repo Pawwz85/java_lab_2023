@@ -1,4 +1,10 @@
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FileCommander {
     Path path;
@@ -14,5 +20,28 @@ public class FileCommander {
     public void cd (Path path)
     {
         this.path = this.path.resolve(path).normalize();
+    }
+    public List<String> ls()
+    {
+        Comparator<Path> comparator = (path2, path1)-> Boolean.compare(Files.isDirectory(path1), Files.isDirectory(path2));
+        try  {
+        return Files.list(path)
+                .sorted(comparator)
+                 .map( o->{
+                    if(Files.isDirectory(o))
+                    {
+                        return  "[" + o.getFileName().toString()+"]";
+                    }
+                    return o.getFileName().toString();
+                })
+                .collect(Collectors.toList());
+
+        }
+        catch (IOException e)
+        {
+
+            throw new RuntimeException();
+        }
+
     }
 }
