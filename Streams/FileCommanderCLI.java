@@ -1,5 +1,7 @@
 import java.io.*;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.function.Function;
 
 public class FileCommanderCLI {
     private FileCommander fileCommander;
@@ -29,7 +31,36 @@ public class FileCommanderCLI {
             return;
         switch (params[0])
         {
-            case "ls" -> fileCommander.ls();
+            case "ls" -> {
+                boolean useColor = false, useFilter = false;
+                String arg ="";
+                for (var p : params)
+                {
+                    if(p.compareTo("--color") == 0)
+                        useColor = true;
+                    if(p.substring(0,9).compareTo("--filter=") == 0)
+                    {
+                        useFilter = true;
+                        arg = p.substring(9);
+                    }
+
+                    }
+                Function<String, String> folderDecorator = Function.identity();
+                if (useColor) {
+                    if(useFilter)
+                    {
+                        String finalArg = arg;
+                        folderDecorator.andThen( (o  -> {
+                            return new DecoratedString(o, "blue").findAndColor(finalArg,"red").toString();
+                        }));
+                    }else folderDecorator.andThen( o -> FileCommander.colorBlue(o));
+
+                }
+                  else
+                    folderDecorator.andThen( o -> FileCommander.encloseWithBrackets(o));
+                fileCommander.ls(folderDecorator);
+
+            }
             case "pwd" -> fileCommander.pwd();
             case "cd" -> fileCommander.cd(Path.of(params[1]));
         }

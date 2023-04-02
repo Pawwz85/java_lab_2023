@@ -3,6 +3,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,7 +22,7 @@ public class FileCommander {
     {
         this.path = this.path.resolve(path).normalize();
     }
-    public List<String> ls()
+    public List<String> ls(Function<String, String> folderDecorator, String filter)
     {
         Comparator<Path> comparator = (path2, path1)-> Boolean.compare(Files.isDirectory(path1), Files.isDirectory(path2));
         comparator =  comparator.thenComparing(Path::getFileName);
@@ -31,10 +32,17 @@ public class FileCommander {
                  .map( o->{
                     if(Files.isDirectory(o))
                     {
-                        return  "[" + o.getFileName().toString()+"]";
+                        return  folderDecorator.apply(o.getFileName().toString());
+                    } else if (filter != null)
+                    {
+                        return new DecoratedString(o.getFileName().toString()).findAndColor(filter, "red").toString();
                     }
+
                     return o.getFileName().toString();
                 })
+                .filter( o -> {
+                    return filter != null ? true : o.compareTo(filter) != 0;}
+                )
                 .collect(Collectors.toList());
 
         }
@@ -56,5 +64,14 @@ public class FileCommander {
 
             throw new RuntimeException();
         }
+    }
+    public static String encloseWithBrackets(String arg)
+    {
+        return "[" + arg + "]";
+    }
+    public static String colorBlue(String arg)
+    {
+        return ConsoleColors.BLUE + arg + "<%r>";
+
     }
 }
