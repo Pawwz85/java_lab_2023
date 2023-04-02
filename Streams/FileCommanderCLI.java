@@ -1,7 +1,10 @@
 import java.io.*;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Function;
+
+
 
 public class FileCommanderCLI {
     private FileCommander fileCommander;
@@ -13,19 +16,18 @@ public class FileCommanderCLI {
         reader = new BufferedReader(new InputStreamReader(start));
         writer = new BufferedWriter( new OutputStreamWriter(end));
     }
-    public void eventLoop()
-    {
-        try
-        {
+    public void eventLoop() {
+
+        while(true){
+        try {
             String line = reader.readLine();
             runCommand(line);
-        }
-        catch(IOException e)
-        {
+        } catch (IOException e) {
             throw new RuntimeException();
         }
+        }
     }
-    private void runCommand(String line){
+    private void runCommand(String line) throws IOException {
         String[] params = line.split(" ");
         if(params.length == 0)
             return;
@@ -38,7 +40,7 @@ public class FileCommanderCLI {
                 {
                     if(p.compareTo("--color") == 0)
                         useColor = true;
-                    if(p.substring(0,9).compareTo("--filter=") == 0)
+                    if(p.length() > 10 && p.substring(0,9).compareTo("--filter=") == 0)
                     {
                         useFilter = true;
                         arg = p.substring(9);
@@ -50,18 +52,29 @@ public class FileCommanderCLI {
                     if(useFilter)
                     {
                         String finalArg = arg;
-                        folderDecorator.andThen( (o  -> {
+                        folderDecorator = folderDecorator.andThen( (o  -> {
                             return new DecoratedString(o, "blue").findAndColor(finalArg,"red").toString();
                         }));
-                    }else folderDecorator.andThen( o -> FileCommander.colorBlue(o));
+                    }else folderDecorator = folderDecorator.andThen( o -> FileCommander.colorBlue(o));
 
                 }
                   else
-                    folderDecorator.andThen( o -> FileCommander.encloseWithBrackets(o));
-                fileCommander.ls(folderDecorator);
+                    folderDecorator = folderDecorator.andThen( o -> FileCommander.encloseWithBrackets(o));
+
+                  List<String> res;
+                  if(useFilter)
+                    res = fileCommander.ls(folderDecorator, arg);
+                  else
+                    res =fileCommander.ls(folderDecorator,null);
+
+                  for(var r:res)
+                  {
+                      System.out.println(r);
+                      writer.write("\n"+r);
+                  }
 
             }
-            case "pwd" -> fileCommander.pwd();
+            case "pwd" -> writer.write("\n" + fileCommander.pwd());
             case "cd" -> fileCommander.cd(Path.of(params[1]));
         }
     }

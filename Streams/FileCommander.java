@@ -35,13 +35,15 @@ public class FileCommander {
                         return  folderDecorator.apply(o.getFileName().toString());
                     } else if (filter != null)
                     {
-                        return new DecoratedString(o.getFileName().toString()).findAndColor(filter, "red").toString();
+                         return new DecoratedString(o.getFileName().toString()).findAndColor(filter, "red").toString();
                     }
 
                     return o.getFileName().toString();
                 })
                 .filter( o -> {
-                    return filter != null ? true : o.compareTo(filter) != 0;}
+                    if (filter == null)
+                        return true;
+                    return o.compareTo(filter) != 0;}
                 )
                 .collect(Collectors.toList());
 
@@ -71,7 +73,7 @@ public class FileCommander {
     }
     public static String colorBlue(String arg)
     {
-        return ConsoleColors.BLUE + arg + "<%r>";
+        return ConsoleColors.BLUE + arg + ConsoleColors.RESET;
 
     }
 }

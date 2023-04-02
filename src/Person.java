@@ -113,7 +113,7 @@ public class Person implements Serializable {
     {
         for(var child:children)
             if(child.parents[0] != this && child.parents[1] != this)
-                throw new ChildNotReferencingParentException(this, child,"Spoilded kid.");
+                throw new ChildNotReferencingParentException(this, child,"Spoiled kid.");
         boolean flag = true;
         for(var parent:parents)
         {
