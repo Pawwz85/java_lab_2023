@@ -6,6 +6,8 @@ public class Main {
         list.addLast("b");
         list.addLast("c");
         list.addLast("d");
-
+        list.stream()
+                .map(o->(o + "sdfg"))
+                .forEach(System.out::println);
     }
 }
