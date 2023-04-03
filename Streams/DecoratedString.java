@@ -28,7 +28,7 @@ public class DecoratedString  {
         switch (wrappingColor)
         {
             case "none":
-                return "";
+                return ConsoleColors.RESET;
             case "red":
                 return ConsoleColors.RED;
             case "blue":
@@ -42,18 +42,18 @@ public class DecoratedString  {
      {
          String result = format;
          for(var w : wrapped)
-         result = format.replaceFirst("[%d]", w.toString() + "[%c]");
+         result = result.replaceFirst("[%d]", w.toString() + "[%]");
          return result;
      }
 
 
     public String toString() {
-        return getColor() + content.replaceAll("[%c]", getColor()) + ConsoleColors.RESET;
+        return getColor() + content.replaceAll("[%]", getColor()) + ConsoleColors.RESET;
     }
     public DecoratedString findAndColor(String substring, String color)
     {
         DecoratedString target = new DecoratedString(substring, color);
-       return new DecoratedString(content.replaceAll(substring, target.toString()),
-               color, wrapped);
+       return new DecoratedString(content.replaceAll(substring, target.toString() + getColor()),
+               wrappingColor, wrapped);
     }
 }

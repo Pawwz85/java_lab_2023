@@ -22,7 +22,7 @@ public class FileCommander {
     {
         this.path = this.path.resolve(path).normalize();
     }
-    public List<String> ls(Function<String, String> folderDecorator, String filter)
+    public List<String> ls(Function<String, String> folderDecorator, Function<String, String> fileDecorator, String filter)
     {
         Comparator<Path> comparator = (path2, path1)-> Boolean.compare(Files.isDirectory(path1), Files.isDirectory(path2));
         comparator =  comparator.thenComparing(Path::getFileName);
@@ -35,7 +35,7 @@ public class FileCommander {
                         return  folderDecorator.apply(o.getFileName().toString());
                     } else if (filter != null)
                     {
-                         return new DecoratedString(o.getFileName().toString()).findAndColor(filter, "red").toString();
+                         return fileDecorator.apply(o.getFileName().toString());
                     }
 
                     return o.getFileName().toString();
@@ -43,7 +43,7 @@ public class FileCommander {
                 .filter( o -> {
                     if (filter == null)
                         return true;
-                    return o.compareTo(filter) != 0;}
+                    return o.lastIndexOf(filter) != -1;}
                 )
                 .collect(Collectors.toList());
 

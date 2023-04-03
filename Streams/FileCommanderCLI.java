@@ -35,12 +35,12 @@ public class FileCommanderCLI {
         {
             case "ls" -> {
                 boolean useColor = false, useFilter = false;
-                String arg ="";
+                String arg = null;
                 for (var p : params)
                 {
                     if(p.compareTo("--color") == 0)
                         useColor = true;
-                    if(p.length() > 10 && p.substring(0,9).compareTo("--filter=") == 0)
+                    if(p.length() >= 10 && p.substring(0,9).compareTo("--filter=") == 0)
                     {
                         useFilter = true;
                         arg = p.substring(9);
@@ -48,10 +48,12 @@ public class FileCommanderCLI {
 
                     }
                 Function<String, String> folderDecorator = Function.identity();
+                Function<String, String> fileDecorator = Function.identity();
                 if (useColor) {
                     if(useFilter)
                     {
                         String finalArg = arg;
+                        fileDecorator = (o ->{return new DecoratedString(o, "none").findAndColor(finalArg,"red").toString();});
                         folderDecorator = folderDecorator.andThen( (o  -> {
                             return new DecoratedString(o, "blue").findAndColor(finalArg,"red").toString();
                         }));
@@ -59,17 +61,15 @@ public class FileCommanderCLI {
 
                 }
                   else
-                    folderDecorator = folderDecorator.andThen( o -> FileCommander.encloseWithBrackets(o));
+                    folderDecorator = (o -> FileCommander.encloseWithBrackets(o));
 
                   List<String> res;
-                  if(useFilter)
-                    res = fileCommander.ls(folderDecorator, arg);
-                  else
-                    res =fileCommander.ls(folderDecorator,null);
+
+                    res = fileCommander.ls(folderDecorator,fileDecorator, arg);
+
 
                   for(var r:res)
                   {
-                      System.out.println(r);
                       writer.write("\n"+r);
                   }
 
