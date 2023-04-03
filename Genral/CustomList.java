@@ -1,5 +1,6 @@
-import java.util.AbstractList;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.function.*;
+import java.util.stream.*;
 
 public class CustomList<T> extends AbstractList {
     private class Node<T> {
@@ -28,7 +29,8 @@ public class CustomList<T> extends AbstractList {
             tail = new Node(value);
             head.next = tail;
         } else {
-            tail.next = new Node(value);
+            Node<T> temp = new Node(value);
+            tail.next = temp;
             tail = tail.next;
         }
     }
@@ -102,7 +104,6 @@ public class CustomList<T> extends AbstractList {
         return result;
     }
 
-    @Override
     public T get(int index) throws NoSuchElementException{
         if(index == 0)
         {
@@ -123,9 +124,39 @@ public class CustomList<T> extends AbstractList {
             }
 
             travelAgent = travelAgent.next;
-            ++index;
         }
 
         return travelAgent.storedElement;
+    }
+
+
+    public Iterator<T> iterator()
+    {
+        return new Iterator<T>() {
+            private Node<T> i = null;
+            @Override
+            public boolean hasNext() {
+                return i != tail;
+            }
+
+            @Override
+            public T next() {
+                if(i == null)
+                    i = head;
+                else
+                    i = i.next;
+                return i.storedElement;
+            }
+        };
+    }
+
+    public Stream<T> stream()
+    {
+       Stream.Builder<T> streamBuilder=  Stream.builder();
+
+       for (var i: this)
+           streamBuilder.add(i);
+
+       return streamBuilder.build();
     }
 }

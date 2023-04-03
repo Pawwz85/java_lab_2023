@@ -6,11 +6,6 @@ public class Main {
         list.addLast("b");
         list.addLast("c");
         list.addLast("d");
-        System.out.println(list.getFirst());
-        list.removeFirst();
-        System.out.println(list.getFirst());
-        System.out.println(list.getLast());
-        list.removeLast();
-        System.out.println(list.getLast());
+
     }
 }
