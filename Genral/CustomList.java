@@ -153,9 +153,9 @@ public class CustomList<T> extends AbstractList {
     public Stream<T> stream()
     {
        Stream.Builder<T> streamBuilder=  Stream.builder();
-
-       for (var i: this)
-           streamBuilder.add(i);
+        Iterator<T> i = iterator();
+       while(i.hasNext())
+           streamBuilder.add(i.next());
 
        return streamBuilder.build();
     }
